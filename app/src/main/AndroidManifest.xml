@@ -1,31 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-    <!-- Android 13+ -->
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-    <!-- Android 12 trở xuống -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" /> <!-- Android 13+ -->
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" /> <!-- Android 12 trở xuống -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
+        android:name="com.application.ApplicationController"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:name="com.application.ApplicationController"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:usesCleartextTraffic="true"
-
-        android:theme="@style/Theme.DemoApplication">
+        android:theme="@style/Theme.DemoApplication"
+        android:usesCleartextTraffic="true">
         <activity
             android:name="com.activity.TestActivity"
+            android:exported="false"
+            android:theme="@style/Theme.DemoApplication" />
+        <activity
+            android:name="com.activity.MainActitity"
             android:exported="true"
             android:theme="@style/Theme.DemoApplication">
             <intent-filter>

@@ -5,15 +5,15 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.JavascriptInterface;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -27,7 +27,6 @@ import com.server.VideoService;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import com.activity.VideoItem;
 
 public class TestActivity extends AppCompatActivity {
 
@@ -44,6 +43,10 @@ public class TestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         videoService = VideoService.getInstance(this);
         videos = new ArrayList<>();
         recyclerView = findViewById(R.id.recyclerView);
@@ -58,6 +61,28 @@ public class TestActivity extends AppCompatActivity {
 
 
         checkPermissionAndLoad();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return  true;
+    }
+
+    // Xử lý khi chọn menu item
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_get_all_video) {
+            Toast.makeText(this, "Settings clicked", Toast.LENGTH_SHORT).show();
+            return true;
+        } else if (id == R.id.action_get_folder) {
+            Toast.makeText(this, "About clicked", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void checkPermissionAndLoad() {
@@ -83,7 +108,7 @@ public class TestActivity extends AppCompatActivity {
                this.videos = new Gson().fromJson(json, listType);
                runOnUiThread(() -> {
                    Log.i("RunOnUIThread", "RunOnUIThread");
-                   recyclerView.setAdapter(new GridAdapter(this.videos));
+                   recyclerView.setAdapter(new ListVideoGridAdapter(this.videos));
                });
 
            } catch (Exception e) {

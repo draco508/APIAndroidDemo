@@ -16,13 +16,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.diff.demoapplication.R;
 import java.util.List;
-import com.activity.VideoItem;
 
-public class GridAdapter extends RecyclerView.Adapter<GridAdapter.GridViewHolder> {
+public class ListVideoGridAdapter extends RecyclerView.Adapter<ListVideoGridAdapter.GridViewHolder> {
 
     private List<VideoItem> items;
 
-    public GridAdapter(List<VideoItem> items) {
+    public ListVideoGridAdapter(List<VideoItem> items) {
         this.items = items;
     }
 

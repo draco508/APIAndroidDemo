@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Base64;
@@ -14,6 +15,7 @@ import android.util.Size;
 
 import androidx.core.content.ContextCompat;
 
+import com.activity.VideoFolder;
 import com.activity.VideoItem;
 import com.google.gson.Gson;
 
@@ -21,6 +23,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class VideoService {
 
@@ -225,6 +230,94 @@ public class VideoService {
     }
 
     // MARK: - VideoItem Model
+    public List<VideoFolder> getVideoFolders(Context context) {
+        List<VideoFolder> folders = new ArrayList<>();
+        HashMap<String, Integer> folderMap = new HashMap<>();
+
+        String[] projection = {
+                MediaStore.Video.Media.DATA // đường dẫn file
+        };
+
+        Uri uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+
+        Cursor cursor = context.getContentResolver().query(
+                uri,
+                projection,
+                null,
+                null,
+                null
+        );
+
+        if (cursor != null) {
+            int columnIndexData = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+
+            while (cursor.moveToNext()) {
+                String filePath = cursor.getString(columnIndexData);
+
+                File file = new File(filePath);
+                String folderPath = file.getParent();
+
+                if (folderPath != null) {
+                    // Đếm số video trong từng folder
+                    if (folderMap.containsKey(folderPath)) {
+                        folderMap.put(folderPath, folderMap.get(folderPath) + 1);
+                    } else {
+                        folderMap.put(folderPath, 1);
+                    }
+                }
+            }
+            cursor.close();
+        }
+
+        // Convert HashMap thành list VideoFolder
+        for (String folderPath : folderMap.keySet()) {
+            String folderName = new File(folderPath).getName();
+            int count = folderMap.get(folderPath);
+            folders.add(new VideoFolder(folderPath, folderName, count));
+        }
+
+        return folders;
+    }
+
+    /** Lấy toàn bộ video trong một folder */
+    public List<VideoItem> getVideosInFolder(String folderPath) throws Exception {
+        ensureAuthorization();
+
+        List<VideoItem> videos = new ArrayList<>();
+        ContentResolver resolver = context.getContentResolver();
+
+        String[] projection = {
+                MediaStore.Video.Media._ID,
+                MediaStore.Video.Media.DURATION,
+                MediaStore.Video.Media.DATA
+        };
+
+        // Lọc các video có DATA (đường dẫn file) bắt đầu bằng folderPath
+        Cursor cursor = resolver.query(
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                projection,
+                MediaStore.Video.Media.DATA + " like ? ",
+                new String[]{ folderPath + "%" },
+                MediaStore.Video.Media.DATE_ADDED + " DESC"
+        );
+
+        if (cursor != null) {
+            int idCol = cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID);
+            int durationCol = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DURATION);
+
+            while (cursor.moveToNext()) {
+                long id = cursor.getLong(idCol);
+                long duration = cursor.getLong(durationCol);
+
+                VideoItem item = makeVideoItem(id, duration);
+                videos.add(item);
+            }
+            cursor.close();
+        }
+
+        return videos;
+    }
+
 
 }
 
